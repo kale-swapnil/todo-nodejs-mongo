@@ -22,33 +22,27 @@ stages:
           displayName: 'Install Node.js'
 
         - script: |
+            cd src/api
             npm install 
           displayName: 'Install dependencies'
 
         - script: | 
+            cd src/api
             npm run build
           displayName: 'Build project'
 
 
-      - job: CopyJob
-        steps:
-          - task: CopyFiles@2
-            inputs:
+        - task: CopyFiles@2
+          inputs:
               sourceFolder: '$(Build.SourcesDirectory)'
               contents: |
                 src/**
                 public/**
               targetFolder:  '$(Build.ArtifactStagingDirectory)'
-            displayName: 'Copy Project Files' 
+          displayName: 'Copy Project Files' 
 
-      - job: PublishArtifact
-        steps:
-          - task: PublishPipelineArtifact@1
-            inputs:
+        - task: PublishPipelineArtifact@1
+          inputs:
               artifactName: 'nodejs-app'
               targetPath: '$(Build.ArtifactStagingDirectory)'
-            displayName: 'Publish pipeline artifact'
-
-
-
-
+          displayName: 'Publish pipeline artifact'
