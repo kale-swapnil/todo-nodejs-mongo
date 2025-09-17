@@ -1,0 +1,54 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureServiceConnection: 'AzureServiceConnection'
+  projectRoot: $(System.DefaultWorkingDirectory)
+  webappName: todo-nodejs-mongo
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: Build stage
+    jobs:
+      - job: Buildjob
+        steps:
+        - task: UseNode@1
+          inputs:
+            version: $(nodeVersion)
+          displayName: 'Install Node.js'
+
+        - script: |
+            npm install 
+          displayName: 'Install dependencies'
+
+        - script: | 
+            npm run build
+          displayName: 'Build project'
+
+
+      - job: CopyJob
+        steps:
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: '$(Build.SourcesDirectory)'
+              contents: |
+                src/**
+                public/**
+              targetFolder:  '$(Build.ArtifactStagingDirectory)'
+            displayName: 'Copy Project Files' 
+
+      - job: PublishArtifact
+        steps:
+          - task: PublishPipelineArtifact@1
+            inputs:
+              artifactName: 'nodejs-app'
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+            displayName: 'Publish pipeline artifact'
+
+
+
+
